@@ -95,10 +95,9 @@ def _git_state(root: Path, git_status_output: str | None) -> GitState:
             return GitState(status="not_a_git_repository", changed_files=[])
         try:
             result = subprocess.run(
-                ["git", "status", "--porcelain"],
+                ["git", "status", "--porcelain=v1", "-z"],
                 cwd=root,
                 check=False,
-                text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL,
             )
@@ -106,7 +105,7 @@ def _git_state(root: Path, git_status_output: str | None) -> GitState:
             return GitState(status="git_unavailable", changed_files=[])
         if result.returncode != 0:
             return GitState(status="git_unavailable", changed_files=[])
-        git_status_output = result.stdout
+        git_status_output = result.stdout.decode("utf-8", errors="surrogateescape")
 
     changed_files = _parse_porcelain_paths(git_status_output)
     return GitState(status="dirty" if changed_files else "clean", changed_files=changed_files)
@@ -114,6 +113,18 @@ def _git_state(root: Path, git_status_output: str | None) -> GitState:
 
 def _parse_porcelain_paths(output: str) -> list[str]:
     paths: list[str] = []
+    if "\0" in output:
+        entries = iter(output.split("\0"))
+        for entry in entries:
+            if not entry:
+                continue
+            paths.append(entry[3:])
+            # In -z format a rename/copy lists the destination, then the source.
+            if "R" in entry[:2] or "C" in entry[:2]:
+                next(entries, None)
+        return paths
+
+    # Retain support for callers supplying line-delimited status output.
     for line in output.splitlines():
         if not line.strip():
             continue

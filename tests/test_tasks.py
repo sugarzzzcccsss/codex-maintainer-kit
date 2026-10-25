@@ -137,7 +137,7 @@ def test_render_tasks_json_is_machine_readable() -> None:
 
     payload = json.loads(render_tasks_json(scan, build_tasks(scan)))
 
-    assert payload["repository"] == "/repo/demo"
+    assert payload["repository"] == str(scan.root)
     assert payload["tasks"][0]["id"] == "add-license"
     assert payload["tasks"][0]["completion_criteria"]
     assert payload["tasks"][0]["suggested_labels"]

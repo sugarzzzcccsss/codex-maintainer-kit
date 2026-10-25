@@ -38,6 +38,7 @@ Codex can help with that work, but it needs clear repository context and human r
 - Detects common maintainer files such as `README.md`, `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, `AGENTS.md`, issue templates, CI workflows, and tests.
 - Detects simple project hints such as Python, JavaScript, Go, Rust, Ruby, PHP, Java, .NET, and Swift markers.
 - Summarizes current Git working-tree changes.
+- Preserves spaces and Unicode in Git filenames and reports rename destinations.
 - Generates an OSS maintenance audit with a health score, maintainer essentials checklist, and prioritized next actions.
 - Generates a Markdown maintainer brief with:
   - repository readiness checklist
