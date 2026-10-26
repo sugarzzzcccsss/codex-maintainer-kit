@@ -121,6 +121,12 @@ default_labels = ["maintenance", "codex"]
 
 Currently, `tasks` uses `verification_command` and `default_labels` when generating Markdown, JSON, and GitHub issue drafts. Unknown keys are ignored to keep the config format forwards-compatible.
 
+Settings belong at the top level of this TOML file. Literal strings preserve
+backslashes, so a Windows command can be written as
+`verification_command = 'C:\tools\verify.ps1'`. Label arrays can span multiple
+lines and include comments. The parser uses Python's standard-library `tomllib`
+on Python 3.11+ and the `tomli` backport on Python 3.9–3.10.
+
 Preview starter files:
 
 ```bash

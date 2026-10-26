@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 from codex_maintainer_kit.cli import main
 
@@ -113,3 +114,17 @@ def test_tasks_command_uses_local_config_file(tmp_path: Path) -> None:
     assert exit_code == 0
     text = output.read_text(encoding="utf-8")
     assert "`npm test`" in text
+
+
+def test_tasks_json_preserves_literal_verification_command(tmp_path: Path) -> None:
+    command = r"C:\tools\new\verify.ps1"
+    (tmp_path / "codex-maintainer-kit.toml").write_text(
+        f"verification_command = '{command}'\n", encoding="utf-8"
+    )
+    output = tmp_path / "tasks.json"
+
+    assert main(["tasks", str(tmp_path), "--format", "json", "--output", str(output)]) == 0
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["tasks"]
+    assert all(task["verification_command"] == command for task in payload["tasks"])
