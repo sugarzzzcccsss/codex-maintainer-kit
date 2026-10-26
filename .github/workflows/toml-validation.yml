@@ -1,0 +1,25 @@
+name: TOML config validation
+on:
+  push:
+    branches: [validation/toml-config-20261027]
+permissions:
+  contents: read
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: f40d4af5e785ecb7fed9f413814ab09cd3450916
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e ".[dev]"
+      - name: Verify selected TOML parser
+        run: python -c "import sys; from codex_maintainer_kit.config import tomllib; assert tomllib.__name__ == ('tomllib' if sys.version_info >= (3, 11) else 'tomli'); print(sys.version, tomllib.__name__)"
+      - run: python -m pytest tests -q
+      - run: python -m pip check
